@@ -1,0 +1,50 @@
+name: 'Setup GKE Auth'
+description: 'Authorize to a GKE cluster'
+branding:
+  icon: cloud-lightning
+  color: blue
+inputs:
+  version:
+    description: 'Version of gke-auth to install (tip, latest-release, v0.1, etc.)'
+    required: true
+    default: 'latest-release'
+  project:
+    description: "GCP project"
+    required: true
+  location:
+    description: "Region or zone of the cluster"
+    required: true
+  cluster:
+    description: "Name of the cluster"
+    required: true
+runs:
+  using: "composite"
+  steps:
+  - shell: bash
+    run: |
+      set -ex
+
+      # Install gke-auth:
+      # - if version is "tip", install from tip of main.
+      # - if version is "latest-release", look up latest release.
+      # - otherwise, install the specified version.
+      case ${{ inputs.version }} in
+      tip)
+        echo "Installing gke-auth using go install"
+        go install github.com/imjasonh/gke-auth@main
+        ;;
+      latest-release)
+        tag=$(curl -s -u "username:${{ github.token }}" https://api.github.com/repos/imjasonh/gke-auth/releases/latest | jq -r '.tag_name')
+        ;;
+      *)
+        tag="${{ inputs.version }}"
+      esac
+
+      if [[ ! -z ${tag} ]]; then
+        echo "Installing gke-auth @ ${tag}"
+        curl -fsL https://github.com/imjasonh/gke-auth/releases/download/${tag}/gke-auth_${tag:1}_Linux_x86_64.tar.gz | sudo tar xzf - -C /usr/local/bin gke-auth
+      fi
+
+      gke-auth --project=${{ inputs.project }} \
+          --location=${{ inputs.location }} \
+          --cluster=${{ inputs.cluster }}
