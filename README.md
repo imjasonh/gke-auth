@@ -16,6 +16,18 @@ gke-auth --project=[MY_PROJECT] \
 
 Now you have auth and kubeconfigs set up to use the cluster.
 
+Or, using GitHub Actions:
+
+```yaml
+- uses: imjasonh/gke-auth@v0.0.2
+  with:
+    project: [MY_PROJECT]
+    location: [REGION_OR_ZONE]
+    cluster: [CLUSTER_NAME]
+```
+
+You probably want to [set up Workload Identity](https://github.com/google-github-actions/auth#usage) between your GitHub Actions workflow and your GCP project.
+
 Test it with:
 
 ```
