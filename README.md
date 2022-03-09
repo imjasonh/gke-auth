@@ -1,6 +1,6 @@
 # Auth to GKE without gcloud
 
-### Installatioin
+### Installation
 
 ```
 go install github.com/imjasonh/gke-auth@latest
