@@ -21,3 +21,21 @@ Test it with:
 ```
 kubectl get pods
 ```
+
+### Why?
+
+`gcloud` is great.
+It's like a Swiss army knife for the cloud, if a knife could do anything to a cloud.
+
+It does so much.
+_It does soooo much!_
+
+Too much.
+
+This leads it to be really huge.
+Hundreds of megabytes of sweet delicious Python.
+Python that has to be interpreted before it can even start running anything.
+
+If you're downloading and installing and running `gcloud` just to execute `gcloud container clusters get-credentials` -- _especially_ in a CI environment -- you're wasting a lot of time.
+
+Installing `gcloud` can take _minutes_, compared to just a few seconds with `gke-auth`, even if you have to build it from source.
