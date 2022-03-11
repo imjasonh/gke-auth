@@ -24,9 +24,8 @@ jobs:
         workload_identity_provider: 'projects/30098225237/locations/global/workloadIdentityPools/gha-pool/providers/gha-provider'
         service_account: 'gha-sa@imjasonh-autopilot.iam.gserviceaccount.com'
 
-    - uses: imjasonh/gke-auth@main
+    - uses: imjasonh/gke-auth@v0.0.3
       with:
-        version:  tip
         project:  imjasonh-autopilot
         location: us-east1
         cluster:  autopilot
