@@ -32,11 +32,11 @@ func main() {
 	// get a token
 	ts, err := google.DefaultTokenSource(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("google.DefaultTokenSource: %v", err)
 	}
 	tok, err := ts.Token()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("ts.Token: %v", err)
 	}
 
 	if *get {
@@ -45,7 +45,7 @@ func main() {
 			"access_token": tok.AccessToken,
 			"token_expiry": tok.Expiry.Format(time.RFC3339),
 		}); err != nil {
-			log.Fatal(err)
+			log.Fatalf("Encoding JSON: %v", err)
 		}
 		return
 	}
@@ -53,11 +53,11 @@ func main() {
 	// get the GKE cluster
 	gke, err := container.NewService(ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("container.NewService: %v", err)
 	}
 	cluster, err := gke.Projects.Locations.Clusters.Get(fmt.Sprintf("projects/%s/locations/%s/clusters/%s", *project, *location, *clusterName)).Do()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Getting cluster: %v", err)
 	}
 
 	// load the current kubeconfig
@@ -67,7 +67,7 @@ func main() {
 	}
 	cfg, err := clientcmd.LoadFromFile(fn)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Loading kubeconfig %q: %v", fn, err)
 	}
 
 	// add user
@@ -89,7 +89,7 @@ func main() {
 	// add cluster
 	dec, err := base64.StdEncoding.DecodeString(cluster.MasterAuth.ClusterCaCertificate)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Decoding CA cert: %v", err)
 	}
 	cfg.Clusters[key] = &api.Cluster{
 		Server:                   "https://" + cluster.Endpoint,
@@ -105,6 +105,6 @@ func main() {
 
 	// write the file back
 	if err := clientcmd.WriteToFile(*cfg, fn); err != nil {
-		log.Fatal(err)
+		log.Fatalf("Writing kubeconfig %q: %v", fn, err)
 	}
 }
