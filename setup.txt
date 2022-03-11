@@ -1,0 +1,38 @@
+Notes based on https://github.com/google-github-actions/auth#setting-up-workload-identity-federation
+
+
+PROJECT_ID=imjasonh-autopilot
+
+gcloud config set project ${PROJECT_ID}
+
+gcloud services enable container.googleapis.com
+gcloud container clusters create-auto autopilot --region=us-east1
+
+gcloud iam service-accounts create gha-sa
+gcloud services enable iamcredentials.googleapis.com
+gcloud iam workload-identity-pools create "gha-pool" \
+  --location="global" \
+  --display-name="GHA pool"
+fullid=$(gcloud iam workload-identity-pools describe "gha-pool" \
+  --location="global" \
+  --format="value(name)")
+export WORKLOAD_IDENTITY_POOL_ID=${fullid}
+gcloud iam workload-identity-pools providers create-oidc "gha-provider" \
+  --location="global" \
+  --workload-identity-pool="gha-pool" \
+  --display-name="GHA provider" \
+  --attribute-mapping="google.subject=assertion.sub,attribute.actor=assertion.actor,attribute.repository=assertion.repository" \
+  --issuer-uri="https://token.actions.githubusercontent.com"
+
+export REPO="imjasonh/gke-auth"
+gcloud iam service-accounts add-iam-policy-binding "gha-sa@${PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/iam.workloadIdentityUser" \
+  --member="principalSet://iam.googleapis.com/${WORKLOAD_IDENTITY_POOL_ID}/attribute.repository/${REPO}"
+  
+  
+echo "WORKLOAD IDENTITY PROVIDER:"
+gcloud iam workload-identity-pools providers describe "gha-provider" \
+  --project="${PROJECT_ID}" \
+  --location="global" \
+  --workload-identity-pool="gha-pool" \
+  --format="value(name)"
