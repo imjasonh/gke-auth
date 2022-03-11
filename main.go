@@ -30,7 +30,7 @@ func main() {
 	ctx := context.Background()
 
 	// get a token
-	ts, err := google.DefaultTokenSource(ctx)
+	ts, err := google.DefaultTokenSource(ctx, container.CloudPlatformScope)
 	if err != nil {
 		log.Fatalf("google.DefaultTokenSource: %v", err)
 	}
