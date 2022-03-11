@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/mitchellh/go-homedir"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/container/v1"
 	"k8s.io/client-go/tools/clientcmd"
@@ -61,21 +62,20 @@ func main() {
 	}
 
 	// load the current kubeconfig
-	fn := os.Getenv("KUBECONFIG")
-	if fn == "" {
-		fn = filepath.Join(os.Getenv("HOME"), ".kube", "config")
+	kcfgPath := os.Getenv("KUBECONFIG")
+	if kcfgPath == "" {
+		kcfgPath, err = homedir.Expand("~/.kube/config")
+		if err != nil {
+			log.Fatalf("homedir: %v", err)
+		}
 	}
-	if err := os.MkdirAll(filepath.Dir(fn), 0644); err != nil {
-		log.Fatalf("mkdir %q: %v", filepath.Dir(fn), err)
+	dir := filepath.Dir(kcfgPath)
+	if err := os.MkdirAll(dir, 0644); err != nil {
+		log.Fatalf("mkdir -p %q: %v", dir, err)
 	}
-	if f, err := os.OpenFile(fn, os.O_CREATE|os.O_RDONLY, 0644); err != nil {
-		log.Fatalf("open %q: %v", fn, err)
-	} else {
-		f.Close()
-	}
-	cfg, err := clientcmd.LoadFromFile(fn)
+	cfg, err := clientcmd.LoadFromFile(kcfgPath)
 	if err != nil {
-		log.Fatalf("Loading kubeconfig %q: %v", fn, err)
+		log.Fatalf("Loading kubeconfig %q: %v", kcfgPath, err)
 	}
 
 	// add user
@@ -112,7 +112,7 @@ func main() {
 	cfg.CurrentContext = key
 
 	// write the file back
-	if err := clientcmd.WriteToFile(*cfg, fn); err != nil {
-		log.Fatalf("Writing kubeconfig %q: %v", fn, err)
+	if err := clientcmd.WriteToFile(*cfg, kcfgPath); err != nil {
+		log.Fatalf("Writing kubeconfig %q: %v", kcfgPath, err)
 	}
 }
