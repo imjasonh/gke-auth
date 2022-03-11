@@ -70,7 +70,7 @@ func main() {
 		}
 	}
 	dir := filepath.Dir(kcfgPath)
-	if err := os.MkdirAll(dir, 0644); err != nil {
+	if err := os.MkdirAll(dir, 0777); err != nil {
 		log.Fatalf("mkdir -p %q: %v", dir, err)
 	}
 	cfg, err := clientcmd.LoadFromFile(kcfgPath)
