@@ -22,7 +22,7 @@ runs:
   steps:
   - shell: bash
     run: |
-      set -euxo pipefail
+      set -ex
 
       # Install gke-auth:
       # - if version is "tip", install from tip of main.
