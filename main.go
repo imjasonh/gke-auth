@@ -73,6 +73,11 @@ func main() {
 	if err := os.MkdirAll(dir, 0777); err != nil {
 		log.Fatalf("mkdir -p %q: %v", dir, err)
 	}
+	if f, err := os.OpenFile(kcfgPath, os.O_CREATE|os.O_RDONLY, 0777); err != nil {
+		log.Fatalf("open %q: %v", kcfgPath, err)
+	} else {
+		f.Close()
+	}
 	cfg, err := clientcmd.LoadFromFile(kcfgPath)
 	if err != nil {
 		log.Fatalf("Loading kubeconfig %q: %v", kcfgPath, err)
