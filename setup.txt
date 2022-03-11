@@ -13,7 +13,7 @@ gcloud iam service-accounts create gha-sa
 gcloud projects add-iam-policy-binding \
   imjasonh-autopilot \
   --member=serviceAccount:gha-sa@imjasonh-autopilot.iam.gserviceaccount.com \
-  --role=roles/container.clusterViewer
+  --role=roles/container.developer
 
 gcloud services enable iamcredentials.googleapis.com
 gcloud iam workload-identity-pools create "gha-pool" \
