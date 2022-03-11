@@ -9,6 +9,12 @@ gcloud services enable container.googleapis.com
 gcloud container clusters create-auto autopilot --region=us-east1
 
 gcloud iam service-accounts create gha-sa
+
+gcloud projects add-iam-policy-binding \
+  imjasonh-autopilot \
+  --member=serviceAccount:gha-sa@imjasonh-autopilot.iam.gserviceaccount.com \
+  --role=roles/container.clusterViewer
+
 gcloud services enable iamcredentials.googleapis.com
 gcloud iam workload-identity-pools create "gha-pool" \
   --location="global" \

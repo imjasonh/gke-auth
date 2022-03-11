@@ -65,6 +65,14 @@ func main() {
 	if fn == "" {
 		fn = filepath.Join(os.Getenv("HOME"), ".kube", "config")
 	}
+	if err := os.MkdirAll(filepath.Dir(fn), 0644); err != nil {
+		log.Fatalf("mkdir %q: %v", filepath.Dir(fn), err)
+	}
+	if f, err := os.OpenFile(fn, os.O_CREATE|os.O_RDONLY, 0644); err != nil {
+		log.Fatalf("open %q: %v", fn, err)
+	} else {
+		f.Close()
+	}
 	cfg, err := clientcmd.LoadFromFile(fn)
 	if err != nil {
 		log.Fatalf("Loading kubeconfig %q: %v", fn, err)
