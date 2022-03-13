@@ -24,7 +24,8 @@ jobs:
     - uses: 'google-github-actions/setup-gcloud@v0'
       with:
         project_id: imjasonh-autopilot
-    - run: gcloud container clusters get-credentials autopilot \
-          --region us-east1
+    - run: |
+        gcloud container clusters get-credentials autopilot \
+            --region us-east1
 
     - run: kubectl get pods
