@@ -25,6 +25,6 @@ jobs:
       with:
         project_id: imjasonh-autopilot
     - run: gcloud container clusters get-credentials autopilot \
-          --region=us-east1 
+          --region us-east1
 
     - run: kubectl get pods
