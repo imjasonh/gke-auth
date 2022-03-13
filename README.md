@@ -57,3 +57,4 @@ If you're downloading and installing and running `gcloud` just to execute `gclou
 Installing `gcloud` can take _minutes_, compared to just a few seconds with `gke-auth`, even if you have to build it from source.
 
 The [example GitHub Actions workflow](./.github/workflows/test-action.yaml) sets up Workload Identity auth to GKE and lists pods in a cluster in _about seven seconds_.
+Compare that to [the equivalent using `gcloud`](./.github/workflows/using-gcloud.yaml), which takes 33 seconds.
