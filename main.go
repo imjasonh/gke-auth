@@ -15,6 +15,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/api/container/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientauthv1 "k8s.io/client-go/pkg/apis/clientauthentication/v1"
 	"k8s.io/client-go/tools/clientcmd"
@@ -34,7 +35,7 @@ func main() {
 	ctx := context.Background()
 
 	// get a token
-	ts, err := google.DefaultTokenSource(ctx, "https://www.googleapis.com/auth/cloud-platform")
+	ts, err := google.DefaultTokenSource(ctx, container.CloudPlatformScope)
 	if err != nil {
 		log.Fatalf("google.DefaultTokenSource: %v", err)
 	}
