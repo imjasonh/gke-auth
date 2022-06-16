@@ -34,7 +34,7 @@ func main() {
 	ctx := context.Background()
 
 	// get a token
-	ts, err := google.DefaultTokenSource(ctx, "https://www.googleapis.com/cloud-platform")
+	ts, err := google.DefaultTokenSource(ctx, "https://www.googleapis.com/auth/cloud-platform")
 	if err != nil {
 		log.Fatalf("google.DefaultTokenSource: %v", err)
 	}
