@@ -11,8 +11,10 @@ import (
 	"path/filepath"
 
 	"github.com/mitchellh/go-homedir"
+	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/container/v1"
+	"google.golang.org/api/option"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientauthv1 "k8s.io/client-go/pkg/apis/clientauthentication/v1"
 	"k8s.io/client-go/tools/clientcmd"
@@ -59,7 +61,7 @@ func main() {
 	}
 
 	// get the GKE cluster
-	gke, err := container.NewService(ctx)
+	gke, err := container.NewService(ctx, option.WithTokenSource(oauth2.StaticTokenSource(tok)))
 	if err != nil {
 		log.Fatalf("container.NewService: %v", err)
 	}
