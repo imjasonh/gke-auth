@@ -12,6 +12,9 @@ permissions:
 jobs:
   test-action:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ['tip', 'latest-release']
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-go@v3
@@ -26,7 +29,7 @@ jobs:
 
     - uses: imjasonh/gke-auth@main
       with:
-        version: v0.1.0
+        version: ${{ matrix.version }}
         project:  imjasonh-autopilot
         location: us-east1
         cluster:  autopilot
