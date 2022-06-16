@@ -26,6 +26,7 @@ jobs:
 
     - uses: imjasonh/gke-auth@main
       with:
+        version: v0.1.0
         project:  imjasonh-autopilot
         location: us-east1
         cluster:  autopilot
