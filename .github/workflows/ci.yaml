@@ -1,7 +1,9 @@
-name: Test Action
+name: CI
 
 on:
   push:
+    branches: ['main']
+  pull_request_target:
     branches: ['main']
   workflow_dispatch:
 
@@ -10,7 +12,7 @@ permissions:
   contents: read
 
 jobs:
-  test-action:
+  ci:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -24,10 +26,10 @@ jobs:
         workload_identity_provider: 'projects/30098225237/locations/global/workloadIdentityPools/gha-pool/providers/gha-provider'
         service_account: 'gha-sa@imjasonh-autopilot.iam.gserviceaccount.com'
 
-    - uses: imjasonh/gke-auth@main
-      with:
-        project:  imjasonh-autopilot
-        location: us-east1
-        cluster:  autopilot
+    - run: |
+        go install ./
+        gke-auth --project=imjasonh-autopilot \
+            --location=us-east1 \
+            --cluster=autopilot
 
     - run: kubectl get pods
