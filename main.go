@@ -6,14 +6,11 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"path/filepath"
 
 	"github.com/mitchellh/go-homedir"
-	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/container/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -41,21 +38,11 @@ func main() {
 	}
 	tok, err := ts.Token()
 	if err != nil {
-		if rerr, ok := err.(*oauth2.RetrieveError); ok {
-			var resp struct {
-				Error        string `json:"error"`
-				ErrorSubtype string `json:"error_subtype"`
-			}
-			if err := json.Unmarshal(rerr.Body, &resp); err == nil &&
-				resp.Error == "invalid_grant" &&
-				resp.ErrorSubtype == "invalid_rapt" {
-				log.Println("--- must reauth")
-			}
-		}
 		log.Fatalf("ts.Token: %v", err)
 	}
 
 	if *get {
+		// just print the token
 		if err := json.NewEncoder(os.Stdout).Encode(&clientauthv1.ExecCredential{
 			TypeMeta: metav1.TypeMeta{
 				APIVersion: "client.authentication.k8s.io/v1",
@@ -72,29 +59,13 @@ func main() {
 	}
 
 	// get the GKE cluster
-	url := fmt.Sprintf("https://container.googleapis.com/v1/projects/%s/locations/%s/clusters/%s", *project, *location, *clusterName)
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+	gke, err := container.NewService(ctx)
 	if err != nil {
-		log.Fatalf("http.NewRequest: %v", err)
+		log.Fatalf("container.NewService: %v", err)
 	}
-	req.Header.Set("Authorization", "Bearer "+tok.AccessToken)
-	resp, err := http.DefaultClient.Do(req)
+	cluster, err := gke.Projects.Locations.Clusters.Get(fmt.Sprintf("projects/%s/locations/%s/clusters/%s", *project, *location, *clusterName)).Do()
 	if err != nil {
-		log.Fatalf("http.Do: %v", err)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		all, _ := ioutil.ReadAll(resp.Body)
-		log.Fatalf("GET %q: %d\n%s", url, resp.StatusCode, string(all))
-	}
-	var cluster struct {
-		Endpoint   string
-		MasterAuth struct {
-			ClusterCaCertificate string
-		}
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&cluster); err != nil {
-		log.Fatalf("json.Decode: %v", err)
+		log.Fatalf("Getting cluster: %v", err)
 	}
 
 	// load the current kubeconfig
