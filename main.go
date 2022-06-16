@@ -6,14 +6,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 
-	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
-	"google.golang.org/api/container/v1"
-	"google.golang.org/api/option"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientauthv1 "k8s.io/client-go/pkg/apis/clientauthentication/v1"
 	"k8s.io/client-go/tools/clientcmd"
@@ -67,14 +66,29 @@ func main() {
 		return
 	}
 
-	// get the GKE cluster
-	gke, err := container.NewService(ctx, option.WithTokenSource(oauth2.StaticTokenSource(tok)))
+	url := fmt.Sprintf("https://container.googleapis.com/v1/projects/%s/locations/%s/clusters/%s", *project, *location, *clusterName)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		log.Fatalf("container.NewService: %v", err)
+		log.Fatalf("http.NewRequest: %v", err)
 	}
-	cluster, err := gke.Projects.Locations.Clusters.Get(fmt.Sprintf("projects/%s/locations/%s/clusters/%s", *project, *location, *clusterName)).Do()
+	tok.SetAuthHeader(req)
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Fatalf("Getting cluster: %v", err)
+		log.Fatalf("http.Do: %v", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		all, _ := io.ReadAll(resp.Body)
+		log.Fatalf("http.Do: %d %s %s", resp.StatusCode, resp.Status, string(all))
+	}
+	var cluster struct {
+		Endpoint   string
+		MasterAuth struct {
+			ClusterCaCertificate string
+		}
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&cluster); err != nil {
+		log.Fatalf("json.Decode: %v", err)
 	}
 
 	// load the current kubeconfig
