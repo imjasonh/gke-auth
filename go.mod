@@ -5,6 +5,7 @@ go 1.17
 require (
 	github.com/mitchellh/go-homedir v1.1.0
 	golang.org/x/oauth2 v0.0.0-20220309155454-6242fa91716a
+	k8s.io/apimachinery v0.23.4
 	k8s.io/client-go v0.23.4
 )
 
@@ -30,7 +31,6 @@ require (
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	k8s.io/apimachinery v0.23.4 // indirect
 	k8s.io/klog/v2 v2.30.0 // indirect
 	k8s.io/utils v0.0.0-20211116205334-6203023598ed // indirect
 	sigs.k8s.io/json v0.0.0-20211020170558-c049b76a60c6 // indirect

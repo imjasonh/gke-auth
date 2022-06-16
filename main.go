@@ -11,10 +11,12 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/mitchellh/go-homedir"
+	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	clientauthv1 "k8s.io/client-go/pkg/apis/clientauthentication/v1"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 )
@@ -38,14 +40,30 @@ func main() {
 	}
 	tok, err := ts.Token()
 	if err != nil {
+		if rerr, ok := err.(*oauth2.RetrieveError); ok {
+			var resp struct {
+				Error        string `json:"error"`
+				ErrorSubtype string `json:"error_subtype"`
+			}
+			if err := json.Unmarshal(rerr.Body, &resp); err == nil &&
+				resp.Error == "invalid_grant" &&
+				resp.ErrorSubtype == "invalid_rapt" {
+				log.Println("--- must reauth")
+			}
+		}
 		log.Fatalf("ts.Token: %v", err)
 	}
 
 	if *get {
-		// just print the token
-		if err := json.NewEncoder(os.Stdout).Encode(map[string]string{
-			"access_token": tok.AccessToken,
-			"token_expiry": tok.Expiry.Format(time.RFC3339),
+		if err := json.NewEncoder(os.Stdout).Encode(&clientauthv1.ExecCredential{
+			TypeMeta: metav1.TypeMeta{
+				APIVersion: "client.authentication.k8s.io/v1",
+				Kind:       "ExecCredential",
+			},
+			Status: &clientauthv1.ExecCredentialStatus{
+				ExpirationTimestamp: &metav1.Time{Time: tok.Expiry},
+				Token:               tok.AccessToken,
+			},
 		}); err != nil {
 			log.Fatalf("Encoding JSON: %v", err)
 		}
@@ -66,7 +84,7 @@ func main() {
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		all, _ := ioutil.ReadAll(resp.Body)
-		log.Fatal("GET %q: %d\n%s", url, resp.StatusCode, string(all))
+		log.Fatalf("GET %q: %d\n%s", url, resp.StatusCode, string(all))
 	}
 	var cluster struct {
 		Endpoint   string
@@ -103,16 +121,12 @@ func main() {
 	// add user
 	key := fmt.Sprintf("gke_%s_%s_%s", *project, *location, *clusterName)
 	cfg.AuthInfos[key] = &api.AuthInfo{
-		AuthProvider: &api.AuthProviderConfig{
-			Config: map[string]string{
-				"access-token": tok.AccessToken,
-				"cmd-args":     "--get",
-				"cmd-path":     os.Args[0],
-				"expiry":       tok.Expiry.Format(time.RFC3339),
-				"expiry-key":   "{.token_expiry}",
-				"token-key":    "{.access_token}",
-			},
-			Name: "gcp",
+		Exec: &api.ExecConfig{
+			APIVersion:      "client.authentication.k8s.io/v1",
+			Command:         os.Args[0],
+			Args:            []string{"--get"},
+			InteractiveMode: api.NeverExecInteractiveMode,
+			InstallHint:     "go install github.com/imjasonh/gke-auto@latest",
 		},
 	}
 
