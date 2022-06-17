@@ -10,7 +10,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 
 	"golang.org/x/oauth2/google"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -91,31 +90,19 @@ func main() {
 		log.Fatalf("json.Decode: %v", err)
 	}
 
-	// load the current kubeconfig
-	kcfgPath := os.Getenv("KUBECONFIG")
-	if kcfgPath == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			log.Fatalf("os.UserHomeDir: %v", err)
-		}
-		kcfgPath = filepath.Join(home, ".kube", "config")
-	}
-	dir := filepath.Dir(kcfgPath)
-	if err := os.MkdirAll(dir, 0777); err != nil {
-		log.Fatalf("mkdir -p %q: %v", dir, err)
-	}
-	if f, err := os.OpenFile(kcfgPath, os.O_CREATE|os.O_RDONLY, 0777); err != nil {
-		log.Fatalf("open %q: %v", kcfgPath, err)
-	} else {
-		f.Close()
-	}
-	cfg, err := clientcmd.LoadFromFile(kcfgPath)
+	cfg, err := clientcmd.NewDefaultClientConfigLoadingRules().Load()
 	if err != nil {
-		log.Fatalf("Loading kubeconfig %q: %v", kcfgPath, err)
+		log.Fatalf("Loading kubeconfig %v", err)
+	}
+
+	// get kubeconfig location
+	key := fmt.Sprintf("gke_%s_%s_%s", *project, *location, *clusterName)
+	kcfgPath := clientcmd.RecommendedHomeFile
+	if auth := cfg.AuthInfos[key]; auth != nil && auth.LocationOfOrigin != "" {
+		kcfgPath = auth.LocationOfOrigin
 	}
 
 	// add user
-	key := fmt.Sprintf("gke_%s_%s_%s", *project, *location, *clusterName)
 	if *clear {
 		cfg.AuthInfos[key] = &api.AuthInfo{}
 		cfg.Clusters[key] = &api.Cluster{}
