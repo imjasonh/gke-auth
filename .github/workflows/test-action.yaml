@@ -17,22 +17,22 @@ jobs:
         version: ['v0.1.0', 'latest-release', 'tip']
       fail-fast: false
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-go@v3
-      with:
-        go-version: 1.18
-    - uses: azure/setup-kubectl@v2.0
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+      - uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7 # v5.0.1
+        with:
+          go-version-file: './go.mod'
+      - uses: azure/setup-kubectl@3e0aec4d80787158d308d7b364cb1b702e7feb7f # v4.0.0
 
-    - uses: 'google-github-actions/auth@v0'
-      with:
-        workload_identity_provider: 'projects/30098225237/locations/global/workloadIdentityPools/gha-pool/providers/gha-provider'
-        service_account: 'gha-sa@imjasonh-autopilot.iam.gserviceaccount.com'
+      - uses: 'google-github-actions/auth@v0'
+        with:
+          workload_identity_provider: 'projects/30098225237/locations/global/workloadIdentityPools/gha-pool/providers/gha-provider'
+          service_account: 'gha-sa@imjasonh-autopilot.iam.gserviceaccount.com'
 
-    - uses: imjasonh/gke-auth@main
-      with:
-        version: ${{ matrix.version }}
-        project:  imjasonh-autopilot
-        location: us-east1
-        cluster:  autopilot
+      - uses: imjasonh/gke-auth@main
+        with:
+          version: ${{ matrix.version }}
+          project:  imjasonh-autopilot
+          location: us-east1
+          cluster:  autopilot
 
-    - run: kubectl get pods
+      - run: kubectl get pods
