@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
       - uses: azure/setup-kubectl@3e0aec4d80787158d308d7b364cb1b702e7feb7f # v4.0.0
 
-      - uses: google-github-actions/auth@71fee32a0bb7e97b4d33d548e7d957010649d8fa # v2.1.3
+      - uses: google-github-actions/auth@09cecabe1f169596b81c2ef22b40faff87acc460 # v0.9.0
         with:
           workload_identity_provider: 'projects/30098225237/locations/global/workloadIdentityPools/gha-pool/providers/gha-provider'
           service_account: 'gha-sa@imjasonh-autopilot.iam.gserviceaccount.com'
