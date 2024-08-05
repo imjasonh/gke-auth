@@ -5,9 +5,9 @@ go 1.22.0
 toolchain go1.22.3
 
 require (
-	golang.org/x/oauth2 v0.21.0
-	k8s.io/apimachinery v0.30.2
-	k8s.io/client-go v0.30.2
+	golang.org/x/oauth2 v0.22.0
+	k8s.io/apimachinery v0.30.3
+	k8s.io/client-go v0.30.3
 )
 
 require (
