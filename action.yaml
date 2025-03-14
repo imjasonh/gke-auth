@@ -17,6 +17,10 @@ inputs:
   cluster:
     description: "Name of the cluster"
     required: true
+  configure-docker:
+    description: "Set up Artifact Registry auth for the project and location"
+    required: true
+    default: "true"
 runs:
   using: "composite"
   steps:
@@ -43,6 +47,10 @@ runs:
       if [[ ! -z ${tag} ]]; then
         echo "Installing gke-auth @ ${tag}"
         curl -fsL https://github.com/imjasonh/gke-auth/releases/download/${tag}/gke-auth_${tag:1}_Linux_x86_64.tar.gz | sudo tar xzf - -C /usr/local/bin gke-auth
+      fi
+
+      if [[ "${{ inputs.configure-docker }}" == "true" ]]; then
+        gke-auth --location=${{ inputs.location }} --configure-docker
       fi
 
       gke-auth --project=${{ inputs.project }} \
