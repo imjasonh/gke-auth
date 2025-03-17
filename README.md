@@ -48,12 +48,13 @@ This will set up a Docker credential helper for interacting with `[REGION]-docke
 
 This is similar to [`docker-credential-gcr`](https://github.com/GoogleCloudPlatform/docker-credential-gcr) except much simpler.
 
-This is configured by default when using the GitHub Action. You can disable this behavior with:
+This can also be configured with the GitHub Action:
 
-```
+```yaml
 uses: imjasonh/gke-auth@XYZ
 with:
-  configure-docker: false
+  location: us-central1-a
+  registry_location: us-central1
 ```
 
 ### Why?

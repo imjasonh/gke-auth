@@ -24,8 +24,12 @@ jobs:
       - uses: google-github-actions/setup-gcloud@98ddc00a17442e89a24bbf282954a3b65ce6d200 # v2.1.0
         with:
           project_id: imjasonh-autopilot
+          install_components: gke-gcloud-auth-plugin
       - run: |
           gcloud container clusters get-credentials autopilot \
               --region us-east1
 
       - run: kubectl get pods
+
+      - run: gcloud auth configure-docker us-east1-docker.pkg.dev
+      - run: crane catalog us-east1-docker.pkg.dev

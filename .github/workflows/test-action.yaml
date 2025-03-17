@@ -34,5 +34,9 @@ jobs:
           project:  imjasonh-autopilot
           location: us-east1
           cluster:  autopilot
-
+          registry_location: us-east1
       - run: kubectl get pods
+
+      - uses: imjasonh/setup-crane@main
+      - run: crane catalog us-east1-docker.pkg.dev
+

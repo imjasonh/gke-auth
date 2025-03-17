@@ -23,8 +23,8 @@ import (
 )
 
 var (
-	project     = flag.String("project", "", "Name of the project (empty means look it up)")
-	location    = flag.String("location", "", "Location of the cluster (empty means look it up)")
+	project     = flag.String("project", "", "Name of the project")
+	location    = flag.String("location", "", "Location of the cluster")
 	clusterName = flag.String("cluster", "", "Name of the cluster")
 
 	get             = flag.Bool("get", false, "If true, print auth information")
