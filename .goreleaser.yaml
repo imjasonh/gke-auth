@@ -2,20 +2,19 @@ version: 2
 builds:
   - goos:
       - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
 archives:
   - id: foo
     name_template: >-
       gke-auth_
       {{- .Version }}_
-      {{- if eq .Env.GOARCH "amd64" }}x86_64
-      {{- else }}{{ .Env.GOARCH }}{{ end }}_
-      {{- if eq .Env.GOOS "linux"}}Linux
-      {{- else }}{{ .Env.GOOS }}{{ end }}
-      .tar.gz
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else }}{{ .Arch }}{{ end }}_
+      {{- if eq .Os "linux"}}Linux
+      {{- else }}{{ .Os }}{{ end }}
 checksum:
   name_template: 'checksums.txt'
-
-goos:
-  - linux
-goarch:
-  - amd64
