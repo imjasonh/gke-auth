@@ -5,6 +5,17 @@ builds:
 archives:
   - id: foo
     name_template: >-
-      gke-auth_{{ .Version }}_Linux_x86_64
+      gke-auth_
+      {{- .Version }}_
+      {{- if eq .Env.GOARCH "amd64" }}x86_64
+      {{- else }}{{ .Env.GOARCH }}{{ end }}_
+      {{- if eq .Env.GOOS "linux"}}Linux
+      {{- else }}{{ .Env.GOOS }}{{ end }}
+      .tar.gz
 checksum:
   name_template: 'checksums.txt'
+
+goos:
+  - linux
+goarch:
+  - amd64
