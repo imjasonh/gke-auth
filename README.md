@@ -1,6 +1,4 @@
-# Auth to GKE without gcloud
-
-[![Test](https://github.com/imjasonh/gke-auth/actions/workflows/test-action.yaml/badge.svg)](https://github.com/imjasonh/gke-auth/actions/workflows/test-action.yaml)
+# Auth to GKE and Artifact Registry without `gcloud`
 
 ### Installation
 
@@ -30,12 +28,33 @@ Or, using GitHub Actions:
     cluster: [CLUSTER_NAME]
 ```
 
-You probably want to [set up Workload Identity](https://github.com/google-github-actions/auth#usage) between your GitHub Actions workflow and your GCP project.
+:bulb: Protip: You probably want to [set up Workload Identity](https://github.com/google-github-actions/auth#usage) between your GitHub Actions workflow and your GCP project.
 
 Test it with:
 
 ```
 kubectl get pods
+```
+
+### Artifact Registry
+
+To use `gke-auth` as a Docker credential helper for Artifact Registry, run:
+
+```
+gke-auth --configure-docker --location=[REGION]
+```
+
+This will set up a Docker credential helper for interacting with `[REGION]-docker.pkg.dev`.
+
+This is similar to [`docker-credential-gcr`](https://github.com/GoogleCloudPlatform/docker-credential-gcr) except much simpler.
+
+This can also be configured with the GitHub Action:
+
+```yaml
+uses: imjasonh/gke-auth@XYZ
+with:
+  location: us-central1-a
+  registry_location: us-central1
 ```
 
 ### Why?
@@ -52,12 +71,9 @@ This leads it to be really huge.
 Hundreds of megabytes of sweet delicious Python.
 Python that has to be interpreted before it can even start running anything.
 
-If you're downloading and installing and running `gcloud` just to execute `gcloud container clusters get-credentials` so you can switch to using `kubectl` -- _especially_ in a CI environment -- you're wasting a lot of time.
+If you're downloading and installing and running `gcloud` just to execute `gcloud container clusters get-credentials` so you can switch to using `kubectl` -- _especially_ in a CI environment -- you're wasting a lot of time. Same with `gcloud auth configure-docker` for Artifact Registry.
 
 Installing `gcloud` can take _minutes_, compared to just a few seconds with `gke-auth`, even if you have to build it from source.
-
-The [example GitHub Actions workflow](./.github/workflows/test-action.yaml) sets up Workload Identity auth to GKE and lists pods in a cluster in _about seven seconds_.
-Compare that to [the equivalent using `gcloud`](./.github/workflows/using-gcloud.yaml), which takes 33 seconds.
 
 ### `gke-gcloud-auth-plugin`
 

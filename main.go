@@ -10,7 +10,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
 
+	"github.com/docker/cli/cli/config"
 	"golang.org/x/oauth2/google"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientauthv1 "k8s.io/client-go/pkg/apis/clientauthentication/v1"
@@ -19,12 +23,13 @@ import (
 )
 
 var (
-	project     = flag.String("project", "", "Name of the project (empty means look it up)")
-	location    = flag.String("location", "", "Location of the cluster (empty means look it up)")
+	project     = flag.String("project", "", "Name of the project")
+	location    = flag.String("location", "", "Location of the cluster")
 	clusterName = flag.String("cluster", "", "Name of the cluster")
 
-	get   = flag.Bool("get", false, "If true, print auth information")
-	clear = flag.Bool("clear", false, "If true, clear auth for this cluster")
+	get             = flag.Bool("get", false, "If true, print auth information")
+	clear           = flag.Bool("clear", false, "If true, clear auth for this cluster")
+	configureDocker = flag.Bool("configure-docker", false, "If true, configure docker to use this token")
 )
 
 func main() {
@@ -34,8 +39,36 @@ func main() {
 	if *get && *clear {
 		log.Fatal("cannot pass both --get and --clear")
 	}
-	if !*get && (*project == "" || *location == "" || *clusterName == "") {
-		log.Fatal("must pass --project and --location and --cluster")
+	if (*get || *clear) && *configureDocker {
+		log.Fatal("cannot pass --get or --clear with --configure-docker")
+	}
+
+	if *configureDocker {
+		if *location == "" {
+			log.Fatal("must pass --location when using --configure-docker")
+		}
+		cfg, err := config.Load(config.Dir())
+		if err != nil {
+			log.Fatalf("Loading docker config: %v", err)
+		}
+		host := fmt.Sprintf("%s-docker.pkg.dev", *location)
+		cfg.CredentialHelpers[host] = "gke-auth"
+		path, err := exec.LookPath(os.Args[0])
+		if err != nil {
+			log.Fatalf("Looking up path: %v", err)
+		}
+		sl := filepath.Dir(path) + "/docker-credential-gke-auth"
+		if err := os.Remove(sl); err != nil && !os.IsNotExist(err) {
+			log.Fatalf("Removing existing symlink: %v", err)
+		}
+		if err := os.Symlink(path, filepath.Dir(path)+"/docker-credential-gke-auth"); err != nil {
+			log.Fatalf("Symlinking: %v", err)
+		}
+		if err := cfg.Save(); err != nil {
+			log.Fatalf("Saving docker config: %v", err)
+		}
+		log.Printf("Docker configured to use gke-auth for %q in %q", host, *location)
+		return
 	}
 
 	// get a token
@@ -46,6 +79,30 @@ func main() {
 	tok, err := ts.Token()
 	if err != nil {
 		log.Fatalf("ts.Token: %v", err)
+	}
+
+	if strings.HasSuffix(os.Args[0], "docker-credential-gke-auth") {
+		urlb, err := io.ReadAll(io.LimitReader(os.Stdin, 1000))
+		if err != nil {
+			log.Fatalf("Reading stdin: %v", err)
+		}
+
+		if err := json.NewEncoder(os.Stdout).Encode(&struct {
+			ServerURL string `json:"ServerURL"`
+			Username  string `json:"Username"`
+			Secret    string `json:"Secret"`
+		}{
+			ServerURL: string(urlb),
+			Username:  "oauth2accesstoken",
+			Secret:    tok.AccessToken,
+		}); err != nil {
+			log.Fatalf("Encoding JSON: %v", err)
+		}
+		return
+	}
+
+	if !*get && (*project == "" || *location == "" || *clusterName == "") {
+		log.Fatal("must pass --project and --location and --cluster")
 	}
 
 	if *get {
