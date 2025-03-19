@@ -1,22 +1,10 @@
-before:
-  hooks:
-    - go mod tidy
+version: 2
 builds:
-  - env:
-      - CGO_ENABLED=0
-    goos:
+  - goos:
       - linux
 archives:
-  - replacements:
-      linux: Linux
-      amd64: x86_64
+  - id: foo
+    name_template: >-
+      gke-auth_{{ .Version }}_Linux_x86_64
 checksum:
   name_template: 'checksums.txt'
-snapshot:
-  name_template: "{{ incpatch .Version }}-next"
-changelog:
-  sort: asc
-  filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
