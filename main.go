@@ -51,6 +51,9 @@ func main() {
 		if err != nil {
 			log.Fatalf("Loading docker config: %v", err)
 		}
+		if cfg.CredentialHelpers == nil {
+			cfg.CredentialHelpers = map[string]string{}
+		}
 		host := fmt.Sprintf("%s-docker.pkg.dev", *location)
 		cfg.CredentialHelpers[host] = "gke-auth"
 		path, err := exec.LookPath(os.Args[0])
