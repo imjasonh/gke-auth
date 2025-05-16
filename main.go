@@ -75,7 +75,13 @@ func main() {
 	}
 
 	// get a token
-	ts, err := google.DefaultTokenSource(ctx, "https://www.googleapis.com/auth/cloud-platform")
+	scopes := []string{
+		// Base scope for GCP auth
+		"https://www.googleapis.com/auth/cloud-platform",
+		// Needed in order to use service account emails instead of unique IDs in K8S RBAC.
+		"https://www.googleapis.com/auth/userinfo.email",
+	}
+	ts, err := google.DefaultTokenSource(ctx, scopes...)
 	if err != nil {
 		log.Fatalf("google.DefaultTokenSource: %v", err)
 	}
