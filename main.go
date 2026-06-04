@@ -26,6 +26,7 @@ var (
 	project     = flag.String("project", "", "Name of the project")
 	location    = flag.String("location", "", "Location of the cluster")
 	clusterName = flag.String("cluster", "", "Name of the cluster")
+	alias       = flag.String("alias", "", "Alias name for the kubeconfig context (defaults to gke_{project}_{location}_{cluster})")
 
 	get             = flag.Bool("get", false, "If true, print auth information")
 	clear           = flag.Bool("clear", false, "If true, clear auth for this cluster")
@@ -163,6 +164,9 @@ func main() {
 
 	// get kubeconfig location
 	key := fmt.Sprintf("gke_%s_%s_%s", *project, *location, *clusterName)
+	if *alias != "" {
+		key = *alias
+	}
 	kcfgPath := clientcmd.RecommendedHomeFile
 	if auth := cfg.AuthInfos[key]; auth != nil && auth.LocationOfOrigin != "" {
 		kcfgPath = auth.LocationOfOrigin
