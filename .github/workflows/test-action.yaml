@@ -38,5 +38,5 @@ jobs:
       - run: kubectl get pods
 
       - uses: imjasonh/setup-crane@main
-      - run: crane catalog us-east1-docker.pkg.dev
+      - run: crane catalog us-east4-docker.pkg.dev
 
