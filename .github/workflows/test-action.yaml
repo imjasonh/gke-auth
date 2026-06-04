@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ['v0.1.0', 'latest-release', 'tip']
+        version: ['v0.3.3', 'latest-release', 'tip']
       fail-fast: false
     steps:
       - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
@@ -25,18 +25,18 @@ jobs:
 
       - uses: 'google-github-actions/auth@v3.0.0'
         with:
-          workload_identity_provider: 'projects/30098225237/locations/global/workloadIdentityPools/gha-pool/providers/gha-provider'
-          service_account: 'gha-sa@imjasonh-autopilot.iam.gserviceaccount.com'
+          workload_identity_provider: 'projects/535085602168/locations/global/workloadIdentityPools/github-actions/providers/github-actions'
+          service_account: 'gke-auth@imjasonh.iam.gserviceaccount.com'
 
       - uses: imjasonh/gke-auth@main
         with:
           version: ${{ matrix.version }}
-          project:  imjasonh-autopilot
-          location: us-east1
+          project:  imjasonh
+          location: us-east4
           cluster:  autopilot
-          registry_location: us-east1
+          registry_location: us-east4
       - run: kubectl get pods
 
       - uses: imjasonh/setup-crane@main
-      - run: crane catalog us-east1-docker.pkg.dev
+      - run: crane catalog us-east4-docker.pkg.dev
 
