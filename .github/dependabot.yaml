@@ -10,12 +10,9 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 5
     groups:
-      all:
+      gomod:
         patterns:
           - "*"
-        update-types:
-          - "minor"
-          - "patch"
 
   - package-ecosystem: "github-actions"
     directories:
@@ -24,7 +21,6 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 5
     groups:
-      all:
-        update-types:
-          - "minor"
-          - "patch"
+      github-actions:
+        patterns:
+          - "*"
