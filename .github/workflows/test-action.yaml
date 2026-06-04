@@ -31,10 +31,10 @@ jobs:
       - uses: imjasonh/gke-auth@main
         with:
           version: ${{ matrix.version }}
-          project:  imjasonh-autopilot
-          location: us-east1
+          project:  imjasonh
+          location: us-east4
           cluster:  autopilot
-          registry_location: us-east1
+          registry_location: us-east4
       - run: kubectl get pods
 
       - uses: imjasonh/setup-crane@main
