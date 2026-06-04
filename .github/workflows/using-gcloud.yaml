@@ -18,18 +18,19 @@ jobs:
 
       - uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3.0.0
         with:
-          workload_identity_provider: 'projects/30098225237/locations/global/workloadIdentityPools/gha-pool/providers/gha-provider'
-          service_account: 'gha-sa@imjasonh-autopilot.iam.gserviceaccount.com'
+          workload_identity_provider: 'projects/535085602168/locations/global/workloadIdentityPools/github-actions/providers/github-actions'
+          service_account: 'gke-auth@imjasonh.iam.gserviceaccount.com'
 
       - uses: google-github-actions/setup-gcloud@f0990588f1e5b5af6827153b93673613abdc6ec7 # v2.1.1
         with:
-          project_id: imjasonh-autopilot
+          project_id: imjasonh
           install_components: gke-gcloud-auth-plugin
       - run: |
           gcloud container clusters get-credentials autopilot \
-              --region us-east1
+              --region us-east4
 
       - run: kubectl get pods
 
-      - run: gcloud auth configure-docker us-east1-docker.pkg.dev
-      - run: crane catalog us-east1-docker.pkg.dev
+      - run: gcloud auth configure-docker us-east4-docker.pkg.dev
+      - uses: imjasonh/setup-crane@main
+      - run: crane catalog us-east4-docker.pkg.dev
