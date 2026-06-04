@@ -2,7 +2,7 @@ name: Test Action
 
 on:
   push:
-    branches: ['main', 'imjasonh-patch-1']
+    branches: ['main']
   workflow_dispatch:
 
 permissions:
