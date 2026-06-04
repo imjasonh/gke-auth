@@ -17,6 +17,10 @@ inputs:
   cluster:
     description: "Name of the cluster"
     required: true
+  alias:
+    description: "Alias name for the kubeconfig context (defaults to gke_{project}_{location}_{cluster})"
+    required: false
+    default: ""
   registry_location:
     description: "Region or multi-region of the Artifact Registry instance"
     required: false
@@ -53,6 +57,13 @@ runs:
         gke-auth --location=${{ inputs.registry_location }} --configure-docker
       fi
 
-      gke-auth --project=${{ inputs.project }} \
-          --location=${{ inputs.location }} \
-          --cluster=${{ inputs.cluster }}
+      args=(
+        --project=${{ inputs.project }}
+        --location=${{ inputs.location }}
+        --cluster=${{ inputs.cluster }}
+      )
+      if [[ "${{ inputs.alias }}" != "" ]]; then
+        args+=(--alias=${{ inputs.alias }})
+      fi
+
+      gke-auth "${args[@]}"
