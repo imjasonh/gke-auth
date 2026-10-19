@@ -3,7 +3,7 @@ module github.com/imjasonh/gke-auth
 go 1.26.0
 
 require (
-	github.com/docker/cli v29.9.0+incompatible
+	github.com/docker/cli v29.9.1+incompatible
 	golang.org/x/oauth2 v0.37.0
 	k8s.io/apimachinery v0.37.1
 	k8s.io/client-go v0.37.1
