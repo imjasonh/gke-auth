@@ -5,8 +5,8 @@ go 1.26.0
 require (
 	github.com/docker/cli v29.9.2+incompatible
 	golang.org/x/oauth2 v0.37.0
-	k8s.io/apimachinery v0.37.1
-	k8s.io/client-go v0.37.1
+	k8s.io/apimachinery v0.37.2
+	k8s.io/client-go v0.37.2
 )
 
 require (
